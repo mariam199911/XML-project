@@ -29,3 +29,12 @@ void MainWindow::on_OpenFileButton_clicked()
     ui->input_text->setLineWrapMode(QPlainTextEdit::NoWrap);
    input_file.close();
 }
+void MainWindow::on_Save_Button_clicked()
+{
+ QFile output_file(QFileDialog::getSaveFileName(this,tr("Save File"),"",tr("Text File ()*.txt;;XML File ()*.xml")));
+ output_file.open(QIODevice::ReadWrite|QIODevice::Text);
+ QString text=ui->output_text->toPlainText();
+     output_file.write(text.toUtf8());
+     output_file.close();
+}
+

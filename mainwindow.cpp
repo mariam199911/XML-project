@@ -41,4 +41,9 @@ void MainWindow::on_Exit_Button_clicked()
 {
     qApp->quit();
 }
+void MainWindow::on_Reset_button_clicked()
+{
+        qApp->quit();
+        QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
 

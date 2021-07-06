@@ -31,7 +31,7 @@ public:
 private slots:
     void on_OpenFileButton_clicked();
     void on_Save_Button_clicked();
-
+    void on_Exit_Button_clicked();
 private:
     Ui::MainWindow *ui;
 };

@@ -37,4 +37,8 @@ void MainWindow::on_Save_Button_clicked()
      output_file.write(text.toUtf8());
      output_file.close();
 }
+void MainWindow::on_Exit_Button_clicked()
+{
+    qApp->quit();
+}
 

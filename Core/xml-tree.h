@@ -9,6 +9,8 @@
 #include <QStringList>
 #include <QFile>
 #include <QStack>
+#include <QTextStream>
+#include <QDebug>
 
 class XMLTree
 {
@@ -16,6 +18,12 @@ private:
     QString fileText;
     QFile *file;
     MainBlock *xmlRoot = nullptr;
+
+    /*
+     * Converting QFile into QString for analysis purposes.
+     */
+    void convertingXMLFileIntoText();
+
     void analyzeXMLFileText();
 
     /*
@@ -30,7 +38,7 @@ private:
     void buildingXMLTree(QVector<QString> * separateTag);
 
     /*
-     * Dividing open tag into parts, to indicate the tag name and the tag attributes.
+     * Dividing open tag into parts to indicate the tag name and the tag attributes.
      */
     QStringList breakingStartTagIntoParts(QString startTag);
 

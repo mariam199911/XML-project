@@ -6,13 +6,33 @@ XMLTree::XMLTree(QString fileText)
     analyzeXMLFileText();
 }
 
+XMLTree::XMLTree(QFile *file)
+    : fileText("")
+    , file(file)
+{
+    convertingXMLFileIntoText();
+    analyzeXMLFileText();
+}
+
 XMLTree::~XMLTree()
 {
     if(xmlRoot != nullptr)
     {
         delete xmlRoot;
     }
-    delete file;
+}
+
+void XMLTree::convertingXMLFileIntoText()
+{
+    file->open(QIODevice::ReadOnly);
+    QTextStream fileInput(file);
+
+    //Storing each line in the XML file in the QString private member.
+    while(!fileInput.atEnd())
+    {
+        fileText.append(fileInput.readLine());
+    }
+    file->close();
 }
 
 void XMLTree::analyzeXMLFileText()
@@ -99,10 +119,23 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
              */
             if((*separateTag)[i-1][0] == '<' && (*separateTag)[i-1][1] != '/')
             {
-                MainBlock* topElement = stack.top();
-                QVector <MainBlock* > * internalBlocks = topElement->getInternalBlocks();
-                internalBlocks->push_back(new TextBlock(""));
+                stack.top()->getInternalBlocks()->push_back(new TextBlock(""));
             }
+            /*MainBlock* testBlock = stack.top();
+            QVector<MainBlock*> *internalBlocks = testBlock->getInternalBlocks();
+            for(int i = 0; i < internalBlocks->size(); i++)
+            {
+                qDebug() << (*internalBlocks)[i]->getBlockName();
+
+                QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
+
+                //printing attributes
+                for(auto it = attributes->begin(); it != attributes->end(); it++)
+                {
+                    qDebug() << " ";
+                    qDebug() << it.key() <<" " << it.value();
+                }
+            }*/
             stack.pop();
         }
         //Indicates an open tag.
@@ -118,8 +151,7 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
             {
                 if(i % 2 && startTag[i] != "/")
                 {
-                    QMap<QString, QString> *attributes = newBlock->getTagAttributes();
-                    attributes->insert(startTag[i], startTag[i+1]);
+                    newBlock->getTagAttributes()->insert(startTag[i], startTag[i+1]);
                 }
                 else if(startTag[i] == "/")
                 {
@@ -128,9 +160,8 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
             }
 
             //Push back the new created block into the internal blocks of the parent block.
-            MainBlock* topElement = stack.top();
-            QVector <MainBlock* > * internalBlocks = topElement->getInternalBlocks();
-            internalBlocks->push_back(newBlock);
+
+            stack.top()->getInternalBlocks()->push_back(newBlock);
 
             //Pushing the new created block into the stack in case if the tag isn't info tag.
             //Because to insert the children of the new created block into its internal blocks.
@@ -146,11 +177,25 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
         }
         //In case of having a text tag.
         else {
-            MainBlock* topElement = stack.top();
-            QVector <MainBlock* > * internalBlocks = topElement->getInternalBlocks();
-            internalBlocks->push_back(new TextBlock(currentTag));
+            stack.top()->getInternalBlocks()->push_back(new TextBlock(currentTag));
         }
     }
+
+    //testing
+    /*QVector<MainBlock*> *internalBlocks = xmlRoot->getInternalBlocks();
+    for(int i = 0; i < internalBlocks->size(); i++)
+    {
+        qDebug() << (*internalBlocks)[i]->getBlockName();
+
+        QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
+
+        //printing attributes
+        for(auto it = attributes->begin(); it != attributes->end(); it++)
+        {
+            qDebug() << " ";
+            qDebug() << it.key() <<" " << it.value();
+        }
+    }*/
 }
 
 QStringList XMLTree::breakingStartTagIntoParts(QString startTag)
@@ -215,3 +260,38 @@ MainBlock* XMLTree::getXMLFileRoot()
 {
     return xmlRoot;
 }
+
+/*  // Testing done in main()
+    QFile *file = new QFile("test.xml");
+    XMLTree* treeNode = new XMLTree(file);
+
+    MainBlock* root = treeNode->getXMLFileRoot();
+
+    qDebug() << root->getBlockName();
+    QMap<QString, QString> *attributes = root->getTagAttributes();
+
+    //printing attributes
+    for(auto it = attributes->begin(); it != attributes->end(); it++)
+    {
+        qDebug() << " ";
+        qDebug() << it.key() <<" " << it.value();
+    }
+
+    //traverse tag blocks.
+    QVector<MainBlock* > *internalBlocks = root->getInternalBlocks();
+    for(int i = 1; i < internalBlocks->size(); i++)
+    {
+        qDebug() << (*internalBlocks)[i]->getBlockName();
+
+        QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
+
+        //printing attributes
+        for(auto it = attributes->begin(); it != attributes->end(); it++)
+        {
+            qDebug() << " ";
+            qDebug() << it.key() <<" " << it.value();
+        }
+    }
+
+    qDebug("End of XML File");
+ */

@@ -48,8 +48,8 @@ public:
     void setBlockName(QString name);
     TagType getBlockTagType();
     void setBlockTagType(TagType type);
-    virtual QVector<MainBlock*> *getInternalBlocks() = 0;
-    virtual QMap<QString, QString> *getTagAttributes() = 0;
+    virtual QVector<MainBlock *> * getInternalBlocks() = 0;
+    virtual QMap<QString, QString> * getTagAttributes() = 0;
     virtual ~MainBlock();
 };
 

@@ -17,12 +17,12 @@ TagBlock::~TagBlock()
     delete tagAttributes;
 }
 
-QVector<MainBlock*> *TagBlock::getInternalBlocks()
+QVector<MainBlock *> * TagBlock::getInternalBlocks()
 {
     return internalBlocks;
 }
 
-QMap<QString, QString> *TagBlock::getTagAttributes()
+QMap<QString, QString> * TagBlock::getTagAttributes()
 {
     return tagAttributes;
 }

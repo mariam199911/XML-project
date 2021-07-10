@@ -1,9 +1,13 @@
 #include "main-block.h"
 
-MainBlock::MainBlock(QString blockName, TagType tagType)
-    : blockName(blockName),
-      tagType(tagType)
+MainBlock::MainBlock(QString name, TagType type)
+    : blockName(name)
+    , tagType(type)
 {}
+
+MainBlock::~MainBlock()
+{
+}
 
 QString MainBlock::getBlockName()
 {

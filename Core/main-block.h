@@ -43,7 +43,7 @@ protected:
     QString blockName;
     TagType tagType;
 public:
-    MainBlock(QString blockName, TagType tagType);
+    MainBlock(QString name, TagType type);
     QString getBlockName();
     void setBlockName(QString name);
     TagType getBlockTagType();

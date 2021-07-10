@@ -10,11 +10,13 @@ CONFIG += c++11
 
 SOURCES += \
     Core/main-block.cpp \
+    Core/tag-block.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     Core/main-block.h \
+    Core/tag-block.h \
     mainwindow.h
 
 FORMS += \

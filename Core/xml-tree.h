@@ -46,9 +46,9 @@ public:
     XMLTree(QFile *file);
 
     /*
-     * Printing the XML tree structure.
+     * Printing the XML tree structure after prettifying.
      */
-    QString writingXMLTreeIntoFile(MainBlock *root, int spacesNum, QString& outputFile);
+    QString prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString& outputFile);
 
     MainBlock* getXMLFileRoot();
     ~XMLTree();

@@ -152,10 +152,8 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
     }
 }
 
-QString XMLTree::writingXMLTreeIntoFile(MainBlock *root, int spacesNum, QString &outputFile)
+QString XMLTree::prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString &outputFile)
 {
-    //qDebug() << root->getBlockContent().rightJustified(spacesNum + root->getBlockContent().length(), ' ');
-
     outputFile += root->getBlockContent().rightJustified(spacesNum + root->getBlockContent().length(), ' ');
     outputFile += "\n";
 
@@ -166,19 +164,16 @@ QString XMLTree::writingXMLTreeIntoFile(MainBlock *root, int spacesNum, QString 
 
     //Getting the children of the root node.
     QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
+    spacesNum += 3;
 
     for(int i = 0; i < internalBlocks->size(); i++)
     {
-        if(i == internalBlocks->size() - 1 || i == 0) {
-            spacesNum--;
-        }
-        else {
-            spacesNum++;
+        if(i == internalBlocks->size() - 1) {
+            spacesNum -= 3;
         }
         MainBlock* blockChild = (*internalBlocks)[i];
-        writingXMLTreeIntoFile(blockChild, spacesNum, outputFile);
+        prettifyingXMLTreeFile(blockChild, spacesNum, outputFile);
     }
-
     return outputFile;
 }
 

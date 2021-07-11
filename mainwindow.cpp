@@ -56,7 +56,8 @@ void MainWindow::on_Prettify_Button_clicked()
         XMLTree* treeNode = new XMLTree(text);
         MainBlock* root = treeNode->getXMLFileRoot();
         QString output = "";
-        QString out = treeNode->writingXMLTreeIntoFile(root, 0, output);
+        int spacesNum = 0;
+        QString out = treeNode->prettifyingXMLTreeFile(root, spacesNum, output);
         ui->output_text->setPlainText(out);
         qDebug() << out;
 }

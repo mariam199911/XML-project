@@ -33,6 +33,7 @@ private slots:
     void on_Save_Button_clicked();
     void on_Exit_Button_clicked();
     void on_Reset_button_clicked();
+    void on_Prettify_Button_clicked();
 private:
     Ui::MainWindow *ui;
 };

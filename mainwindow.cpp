@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "Core/xml-tree.h"
 
+#include<QDebug>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -14,13 +16,15 @@ MainWindow::~MainWindow()
 }
 QFile mytempfile("out.txt");
 QFile myfile("myfile.txt");
+QString text = "";
 void MainWindow::on_OpenFileButton_clicked()
 {
     ui->input_text->clear();
     QFile input_file(QFileDialog::getOpenFileName(this,tr("Open File"),"",tr("XML File (*.xml) ;;TextFile (*.txt)")));
+
     input_file.open(QIODevice::ReadOnly |QIODevice::Text);
     QTextStream stream(&input_file);
-    QString text= stream.readAll();
+    text= stream.readAll();
     myfile.remove();
     mytempfile.resize(0);
     input_file.copy("myfile.txt");
@@ -45,5 +49,15 @@ void MainWindow::on_Reset_button_clicked()
 {
         qApp->quit();
         QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
+void MainWindow::on_Prettify_Button_clicked()
+{
+
+        XMLTree* treeNode = new XMLTree(text);
+        MainBlock* root = treeNode->getXMLFileRoot();
+        QString output = "";
+        QString out = treeNode->writingXMLTreeIntoFile(root, 0, output);
+        ui->output_text->setPlainText(out);
+        qDebug() << out;
 }
 

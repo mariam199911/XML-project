@@ -186,6 +186,26 @@ QString XMLTree::prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString
     return outputFile;
 }
 
+QString XMLTree::minfyingXMLTreeFile(MainBlock *root, QString &outputFile)
+{
+    outputFile += root->getBlockContent();
+
+    if(root->getInternalBlocks()->empty()) {
+        return outputFile;
+    }
+
+    //Getting the children of the root node.
+    QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
+
+    for(int i = 0; i < internalBlocks->size(); i++)
+    {
+        MainBlock* blockChild = (*internalBlocks)[i];
+        minfyingXMLTreeFile(blockChild, outputFile);
+    }
+    return outputFile;
+}
+
+
 QStringList XMLTree::breakingStartTagIntoParts(QString startTag)
 {
     QStringList tagParts;

@@ -50,6 +50,11 @@ public:
      */
     QString prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString& outputFile);
 
+    /*
+     * Printing the XML tree structure after minfying.
+     */
+    QString minfyingXMLTreeFile(MainBlock *root, QString& outputFile);
+
     MainBlock* getXMLFileRoot();
     ~XMLTree();
 };

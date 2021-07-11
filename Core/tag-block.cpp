@@ -3,7 +3,6 @@
 TagBlock::TagBlock(QString content, TagType type)
     : MainBlock(content, type)
     , internalBlocks(new QVector<MainBlock*>())
-    //, tagAttributes(new QMap<QString, QString> ())
 {}
 
 TagBlock::~TagBlock()
@@ -14,15 +13,9 @@ TagBlock::~TagBlock()
         delete (*internalBlocks)[i];
     }
     delete internalBlocks;
-    //delete tagAttributes;
 }
 
 QVector<MainBlock *> * TagBlock::getInternalBlocks()
 {
     return internalBlocks;
 }
-
-/*QMap<QString, QString> * TagBlock::getTagAttributes()
-{
-    return tagAttributes;
-}*/

@@ -44,6 +44,12 @@ private:
 public:
     XMLTree(QString fileText);
     XMLTree(QFile *file);
+
+    /*
+     * Printing the XML tree structure.
+     */
+    QString writingXMLTreeIntoFile(MainBlock *root, int spacesNum, QString& outputFile);
+
     MainBlock* getXMLFileRoot();
     ~XMLTree();
 };

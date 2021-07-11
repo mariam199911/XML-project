@@ -40,16 +40,16 @@ typedef enum TagType
 class MainBlock
 {
 protected:
-    QString blockName;
+    QString blockContent;
     TagType tagType;
 public:
-    MainBlock(QString name, TagType type);
-    QString getBlockName();
-    void setBlockName(QString name);
+    MainBlock(QString content, TagType type);
+    QString getBlockContent();
+    void setBlockContent(QString content);
     TagType getBlockTagType();
     void setBlockTagType(TagType type);
     virtual QVector<MainBlock *> * getInternalBlocks() = 0;
-    virtual QMap<QString, QString> * getTagAttributes() = 0;
+    //virtual QMap<QString, QString> * getTagAttributes() = 0;
     virtual ~MainBlock();
 };
 

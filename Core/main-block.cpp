@@ -1,7 +1,7 @@
 #include "main-block.h"
 
-MainBlock::MainBlock(QString name, TagType type)
-    : blockName(name)
+MainBlock::MainBlock(QString content, TagType type)
+    : blockContent(content)
     , tagType(type)
 {}
 
@@ -9,14 +9,14 @@ MainBlock::~MainBlock()
 {
 }
 
-QString MainBlock::getBlockName()
+QString MainBlock::getBlockContent()
 {
-    return blockName;
+    return blockContent;
 }
 
-void MainBlock::setBlockName(QString name)
+void MainBlock::setBlockContent(QString content)
 {
-    blockName = name;
+    blockContent = content;
 }
 
 TagType MainBlock::getBlockTagType()

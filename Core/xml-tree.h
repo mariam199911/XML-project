@@ -2,7 +2,6 @@
 #define XMLTREE_H
 
 #include "tag-block.h"
-#include "text-block.h"
 #include <QVector>
 #include <QString>
 #include <QMap>

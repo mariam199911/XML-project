@@ -93,16 +93,26 @@ QVector<QString> * XMLTree::breakingFileTextIntoTags()
             }
         }
     }
+
     return separateTags;
 }
 
 void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
 {
-    xmlRoot = new TagBlock("XML-Root", TagType::OPEN_TAG);
+    /*
+     * TO DO:
+     * In case of having Info Tags at the start of the XML file:
+     *  ---> Info Tags has no children, so we need to create a seperate root for it.
+     *  ---> we have 2 info tags, each will be a separate block.
+     *  ---> Let xmlRoot starts from (*separateTag)[2]
+     *  ---> Looping starts from i = 3.
+     */
+
+    xmlRoot = new TagBlock((*separateTag)[0], TagType::OPEN_TAG);
     QStack<MainBlock* > stack;
     stack.push(xmlRoot);
 
-    for(int i = 0; i < separateTag->length(); i++)
+    for(int i = 1; i < separateTag->length(); i++)
     {
         QString currentTag = (*separateTag)[i];
 
@@ -119,83 +129,27 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
              */
             if((*separateTag)[i-1][0] == '<' && (*separateTag)[i-1][1] != '/')
             {
-                stack.top()->getInternalBlocks()->push_back(new TextBlock(""));
+               stack.top()->getInternalBlocks()->push_back(new TagBlock("", TagType::TAG_CONTENT));
             }
-            /*MainBlock* testBlock = stack.top();
-            QVector<MainBlock*> *internalBlocks = testBlock->getInternalBlocks();
-            for(int i = 0; i < internalBlocks->size(); i++)
-            {
-                qDebug() << (*internalBlocks)[i]->getBlockName();
-
-                QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
-
-                //printing attributes
-                for(auto it = attributes->begin(); it != attributes->end(); it++)
-                {
-                    qDebug() << " ";
-                    qDebug() << it.key() <<" " << it.value();
-                }
-            }*/
+            stack.top()->getInternalBlocks()->push_back(new TagBlock(currentTag, TagType::CLOSED_TAG));
             stack.pop();
         }
         //Indicates an open tag.
         else if(currentTag[0] == '<')
         {
-            QStringList startTag = breakingStartTagIntoParts(currentTag);
-
-            //Creating a new block for the open tag.
-            MainBlock* newBlock = new TagBlock(startTag[0], TagType::OPEN_TAG);
-
-            //Storing the tag attributes for the new created block.
-            for(int i = 1; i < startTag.length(); i++)
-            {
-                if(i % 2 && startTag[i] != "/")
-                {
-                    newBlock->getTagAttributes()->insert(startTag[i], startTag[i+1]);
-                }
-                else if(startTag[i] == "/")
-                {
-                    newBlock->setBlockTagType(TagType::CLOSED_TAG);
-                }
-            }
+            MainBlock* newBlock = new TagBlock(currentTag, TagType::OPEN_TAG);
 
             //Push back the new created block into the internal blocks of the parent block.
-
             stack.top()->getInternalBlocks()->push_back(newBlock);
 
-            //Pushing the new created block into the stack in case if the tag isn't info tag.
-            //Because to insert the children of the new created block into its internal blocks.
-            //In case of an info tag, it doesn't contain tag childen so no need to push it into the stack.
-            if(startTag[0] != "xml" && startTag[0] != "xml-model" && newBlock->getBlockTagType() != TagType::CLOSED_TAG)
-            {
-                stack.push(newBlock);
-            }
-            else if(newBlock->getBlockTagType() != TagType::CLOSED_TAG)
-            {
-                newBlock->setBlockTagType(TagType::TAG_INFO);
-            }
+            //Pushing the new created block into the stack.
+            stack.push(newBlock);
         }
         //In case of having a text tag.
         else {
-            stack.top()->getInternalBlocks()->push_back(new TextBlock(currentTag));
+            stack.top()->getInternalBlocks()->push_back(new TagBlock(currentTag, TagType::TAG_CONTENT));
         }
     }
-
-    //testing
-    /*QVector<MainBlock*> *internalBlocks = xmlRoot->getInternalBlocks();
-    for(int i = 0; i < internalBlocks->size(); i++)
-    {
-        qDebug() << (*internalBlocks)[i]->getBlockName();
-
-        QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
-
-        //printing attributes
-        for(auto it = attributes->begin(); it != attributes->end(); it++)
-        {
-            qDebug() << " ";
-            qDebug() << it.key() <<" " << it.value();
-        }
-    }*/
 }
 
 QStringList XMLTree::breakingStartTagIntoParts(QString startTag)
@@ -261,37 +215,32 @@ MainBlock* XMLTree::getXMLFileRoot()
     return xmlRoot;
 }
 
-/*  // Testing done in main()
-    QFile *file = new QFile("test.xml");
-    XMLTree* treeNode = new XMLTree(file);
+/*
+ * For testing the tree structure:
+ * ---> Just copy and paste this function in any file, to display the tree structure on the console.
 
-    MainBlock* root = treeNode->getXMLFileRoot();
-
-    qDebug() << root->getBlockName();
-    QMap<QString, QString> *attributes = root->getTagAttributes();
-
-    //printing attributes
-    for(auto it = attributes->begin(); it != attributes->end(); it++)
-    {
-        qDebug() << " ";
-        qDebug() << it.key() <<" " << it.value();
-    }
-
-    //traverse tag blocks.
-    QVector<MainBlock* > *internalBlocks = root->getInternalBlocks();
-    for(int i = 1; i < internalBlocks->size(); i++)
-    {
-        qDebug() << (*internalBlocks)[i]->getBlockName();
-
-        QMap<QString, QString> *attributes = (*internalBlocks)[i]->getTagAttributes();
-
-        //printing attributes
-        for(auto it = attributes->begin(); it != attributes->end(); it++)
+        void testTreeStructure()
         {
-            qDebug() << " ";
-            qDebug() << it.key() <<" " << it.value();
-        }
-    }
+           QFile *file = new QFile("test.xml");
+           XMLTree* treeNode = new XMLTree(file);
 
-    qDebug("End of XML File");
+           MainBlock* root = treeNode->getXMLFileRoot();
+           qDebug() << root->getBlockContent();
+           //Get root children.
+           QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
+
+           for(int i = 0; i < internalBlocks->size(); i++)
+           {
+               qDebug() <<"";
+               //Get children of the root child.
+               MainBlock* blockContent = (*internalBlocks)[i];
+               qDebug() << blockContent->getBlockContent() << ", its type: " << blockContent->getBlockTagType();
+               QVector<MainBlock*> *children = blockContent->getInternalBlocks();
+
+               for(int i = 0; i <children->size(); i++) {
+                   qDebug() << (*children)[i]->getBlockContent() << ", its type: " << (*children)[i]->getBlockTagType();
+               }
+               qDebug() <<"";
+           }
+        }
  */

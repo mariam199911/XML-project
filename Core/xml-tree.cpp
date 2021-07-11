@@ -155,15 +155,24 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
 QString XMLTree::prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString &outputFile)
 {
     outputFile += root->getBlockContent().rightJustified(spacesNum + root->getBlockContent().length(), ' ');
+
+    //Getting the children of the root node.
+    QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
+
+    if(root->getInternalBlocks()->size() == 2)
+    {
+        outputFile += (*root->getInternalBlocks())[0]->getBlockContent();
+        outputFile += (*root->getInternalBlocks())[1]->getBlockContent();
+        outputFile += "\n";
+        return outputFile;
+    }
+
     outputFile += "\n";
 
-    //In case of leaf node (leaf blocks).
     if(root->getInternalBlocks()->empty()) {
         return outputFile;
     }
 
-    //Getting the children of the root node.
-    QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
     spacesNum += 3;
 
     for(int i = 0; i < internalBlocks->size(); i++)
@@ -239,33 +248,3 @@ MainBlock* XMLTree::getXMLFileRoot()
 {
     return xmlRoot;
 }
-
-/*
- * For testing the tree structure:
- * ---> Just copy and paste this function in any file, to display the tree structure on the console.
-
-        void testTreeStructure()
-        {
-           QFile *file = new QFile("test.xml");
-           XMLTree* treeNode = new XMLTree(file);
-
-           MainBlock* root = treeNode->getXMLFileRoot();
-           qDebug() << root->getBlockContent();
-           //Get root children.
-           QVector<MainBlock*> *internalBlocks = root->getInternalBlocks();
-
-           for(int i = 0; i < internalBlocks->size(); i++)
-           {
-               qDebug() <<"";
-               //Get children of the root child.
-               MainBlock* blockContent = (*internalBlocks)[i];
-               qDebug() << blockContent->getBlockContent() << ", its type: " << blockContent->getBlockTagType();
-               QVector<MainBlock*> *children = blockContent->getInternalBlocks();
-
-               for(int i = 0; i <children->size(); i++) {
-                   qDebug() << (*children)[i]->getBlockContent() << ", its type: " << (*children)[i]->getBlockTagType();
-               }
-               qDebug() <<"";
-           }
-        }
- */

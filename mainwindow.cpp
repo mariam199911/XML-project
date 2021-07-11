@@ -59,6 +59,6 @@ void MainWindow::on_Prettify_Button_clicked()
         int spacesNum = 0;
         QString out = treeNode->prettifyingXMLTreeFile(root, spacesNum, output);
         ui->output_text->setPlainText(out);
-        qDebug() << out;
+        //qDebug() << out;
 }
 

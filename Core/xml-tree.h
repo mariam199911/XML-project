@@ -36,11 +36,6 @@ private:
      */
     void buildingXMLTree(QVector<QString> * separateTag);
 
-    /*
-     * Dividing open tag into parts to indicate the tag name and the tag attributes.
-     */
-    QStringList breakingStartTagIntoParts(QString startTag);
-
 public:
     XMLTree(QString fileText);
     XMLTree(QFile *file);

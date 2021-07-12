@@ -12,6 +12,7 @@ SOURCES += \
     Core/main-block.cpp \
     Core/tag-block.cpp \
     Core/xml-tree.cpp \
+    Core/xmlfile-converter.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -19,6 +20,7 @@ HEADERS += \
     Core/main-block.h \
     Core/tag-block.h \
     Core/xml-tree.h \
+    Core/xmlfile-converter.h \
     mainwindow.h
 
 FORMS += \

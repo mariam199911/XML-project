@@ -205,65 +205,6 @@ QString XMLTree::minfyingXMLTreeFile(MainBlock *root, QString &outputFile)
     return outputFile;
 }
 
-
-QStringList XMLTree::breakingStartTagIntoParts(QString startTag)
-{
-    QStringList tagParts;
-    QString currentPart = "";
-    startTag = startTag.mid(1, startTag.length() - 1);
-    bool isAttribute = false;
-    QChar currentCharacter;
-    for(int i = 0 ; i < startTag.length(); i++)
-    {
-        currentCharacter = startTag[i];
-
-        // An empty character exists either after the tag name or between the attributes.
-        if(currentCharacter == ' ') {
-            // The empty character exists between the attributes.
-            if(isAttribute) {
-                currentPart += currentCharacter;
-            }
-            // Indicates the end of a tag name.
-            else if(!currentPart.isEmpty()) {
-                tagParts.push_back(currentPart);
-                currentPart.clear();
-            }
-        }
-        else if(currentCharacter == '"') {
-            // Indicates the end of an attribute value.
-            if(isAttribute) {
-                tagParts.push_back(currentPart);
-                currentPart.clear();
-            }
-
-            isAttribute = !isAttribute;
-        }
-        // Indicates the end of an attribute key.
-        else if(currentCharacter == '=') {
-            tagParts.push_back(currentPart);
-            currentPart.clear();
-        }
-        // Indicates the end of the tag.
-        else if(currentCharacter == '>' && !currentPart.isEmpty())
-        {
-            tagParts.push_back(currentCharacter);
-        }
-        // In case of an info tag, the '?' is only stored at the end of the info tag.
-        else if(currentCharacter == '?' && currentPart.isEmpty())
-        {
-            continue;
-        }
-        else if(currentCharacter == '/' && !isAttribute)
-        {
-            tagParts.push_back("/");
-        }
-        else {
-            currentPart += currentCharacter;
-        }
-    }
-    return tagParts;
-}
-
 MainBlock* XMLTree::getXMLFileRoot()
 {
     return xmlRoot;

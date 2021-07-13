@@ -64,9 +64,12 @@ void MainWindow::on_Prettify_Button_clicked()
 
 void MainWindow::on_Remove_Spaces_clicked()
 {
-    XMLTree* treeNode = new XMLTree(text);
+    /*XMLTree* treeNode = new XMLTree(text);
     MainBlock* root = treeNode->getXMLFileRoot();
     QString output = "";
     QString out = treeNode->minfyingXMLTreeFile(root, output);
-    ui->output_text->setPlainText(out);
+    ui->output_text->setPlainText(out);*/
+    XMLTree* treeNode = new XMLTree(text);
+        QString out = treeNode->convertXMLFileIntoJSONFile();
+        ui->output_text->setPlainText(out);
 }

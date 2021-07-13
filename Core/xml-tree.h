@@ -38,7 +38,6 @@ private:
      */
     void buildingXMLTree(QVector<QString> * separateTag);
 
-    void generateJSONFile();
     void generateJSONObject(MainBlock *currentBlock, bool isLastBlock);
 
     /*

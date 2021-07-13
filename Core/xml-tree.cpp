@@ -159,37 +159,16 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
 
 QString XMLTree::convertXMLFileIntoJSONFile()
 {
-    generateJSONFile();
-    return JSONFile;
-}
-
-void XMLTree::generateJSONFile()
-{
-    MainBlock* jsonRoot = xmlRoot;
     JSONFile.append('{');
     JSONFile.append('\n');
+    indentCounter += 3;
 
-    indentCounter = 1;
+    generateJSONObject(xmlRoot, false);
 
-    bool isLast1 = false;
-    bool isLast2 = true;
-
-    //Getting the internal blocks of the root block and call generateJSONObject, which will be called recursively.
-    QVector<MainBlock*> *internalBlocks = jsonRoot->getInternalBlocks();
-    for(int i = 0; i < internalBlocks->size(); i++)
-    {
-        //TO DO, may be xmlRoot->getInternalBlocks()->size() - 2 (the previous block of the last one)
-        if(i == internalBlocks->size() - 1)
-        {
-            generateJSONObject((*internalBlocks)[i], isLast2);
-        }
-        else {
-            generateJSONObject((*internalBlocks)[i], isLast1);
-        }
-    }
-
+    indentCounter -= 3;
     JSONFile.append('}');
     JSONFile.append('\n');
+    return JSONFile;
 }
 
 void XMLTree::generateJSONObject(MainBlock *currentBlock, bool isLastBlock)

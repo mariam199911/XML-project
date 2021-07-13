@@ -80,3 +80,10 @@ void MainWindow::on_JSON_Button_clicked()
         QString out = treeNode->convertXMLFileIntoJSONFile();
         ui->output_text->setPlainText(out);
 }
+void MainWindow::on_Check_Button_clicked()
+{
+     QString output = "";
+    XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
+    QString out = treeNode->error_checking(output);
+    ui->output_text->setPlainText(out);
+}

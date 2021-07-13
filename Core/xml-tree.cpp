@@ -2,12 +2,17 @@
 
 XMLTree::XMLTree(QString fileText)
     : fileText(fileText)
+    , JSONFile("")
+    , indentCounter(0)
+
 {
     analyzeXMLFileText();
 }
 
 XMLTree::XMLTree(QFile *file)
     : fileText("")
+    , JSONFile("")
+    , indentCounter(0)
     , file(file)
 {
     convertingXMLFileIntoText();
@@ -151,6 +156,213 @@ void XMLTree::buildingXMLTree(QVector<QString> *separateTag)
         }
     }
 }
+
+QString XMLTree::convertXMLFileIntoJSONFile()
+{
+    generateJSONObject(xmlRoot, false);
+    return JSONFile;
+}
+
+void XMLTree::generateJSONObject(MainBlock *currentBlock, bool isLastBlock)
+{
+    QVector<MainBlock*> *internalBlocks = currentBlock->getInternalBlocks();
+
+    //In case the current block is closed tag or text tag, which has no children in it.
+    //Indicates the end of a given block.
+    if(internalBlocks->empty()) {
+        return;
+    }
+
+    //Splitting the open tag into tag name, and tag attributes.
+    QStringList startTagContents = breakingStartTagIntoParts(currentBlock->getBlockContent());
+    QString startTagName = startTagContents[0];
+    QMap<QString, QString> startTagAttributes;
+
+    for (int i = 1; i < startTagContents.length(); i++)
+    {
+        if (i % 2 == 1)
+        {
+            startTagAttributes.insert(startTagContents[i], startTagContents[i+1]);
+        }
+    }
+
+    generateIndentationForJSON();
+
+    JSONFile.append('"');
+    JSONFile.append(startTagName);
+    JSONFile.append("\": ");
+
+    //In case the current block is an open tag, and has only its text tag, and its closed tag.
+    //No internal blocks in it.
+    if(internalBlocks->size() == 2 ) {
+
+        //In case there is no tag attributes, just insert the text tag into the JSON file.
+        if(startTagAttributes.empty()) {
+            JSONFile.append('"');
+            JSONFile.append((*internalBlocks)[0]->getBlockContent());
+            JSONFile.append('"');
+
+            if(isLastBlock) {
+                JSONFile.append("");
+            }
+            else {
+                JSONFile.append(',');
+            }
+
+            JSONFile.append('\n');
+        }
+        //In case open tag has attributes.
+        else {
+            JSONFile.append('{');
+            indentCounter += 3;
+
+            //Inserting start tag attributes in the JSON file.
+            auto mapIterator = startTagAttributes.constBegin();
+            while(mapIterator != startTagAttributes.constEnd())
+            {
+                JSONFile.append("\n");
+                generateIndentationForJSON();
+                JSONFile.append("\"@");
+                JSONFile.append(mapIterator.key());
+                JSONFile.append("\": \"");
+                JSONFile.append(mapIterator.value());
+                JSONFile.append("\",\n");
+                mapIterator++;
+            }
+
+            //Inserting the text tag in the JSON file.
+            generateIndentationForJSON();
+
+            JSONFile.append("\"#text\": \"");
+            JSONFile.append((*internalBlocks)[0]->getBlockContent());
+            JSONFile.append("\"\n");
+
+            indentCounter -= 3;
+            generateIndentationForJSON();
+
+            //Inseting a closed bracket that indicates the end of the start tag.
+            JSONFile.append('}');
+            if(isLastBlock) {
+                JSONFile.append("");
+            }
+            else {
+                JSONFile.append(',');
+            }
+
+            JSONFile.append('\n');
+        }
+        return;
+    }
+    JSONFile.append('{');
+    JSONFile.append('\n');
+    indentCounter += 3;
+
+    //Inserting start tag attributes in the JSON file.
+    auto mapIterator = startTagAttributes.constBegin();
+    while(mapIterator != startTagAttributes.constEnd())
+    {
+        generateIndentationForJSON();
+        JSONFile.append("\"@");
+        JSONFile.append(mapIterator.key());
+        JSONFile.append("\": \"");
+        JSONFile.append(mapIterator.value());
+        JSONFile.append("\",\n");
+
+        mapIterator++;
+    }
+
+    for(int i = 0; i < internalBlocks->size(); i++)
+    {
+        //TO DO, may be xmlRoot->getInternalBlocks()->size() - 2 (the previous block of the last one)
+        if(i == internalBlocks->size() - 1)
+        {
+            generateJSONObject((*internalBlocks)[i], true);
+        }
+        else {
+            generateJSONObject((*internalBlocks)[i], false);
+        }
+    }
+
+    indentCounter -= 3;
+    generateIndentationForJSON();
+
+    //Inseting a closed bracket that indicates the end of the current tag.
+    JSONFile.append('}');
+    if(isLastBlock) {
+        JSONFile.append("");
+    }
+    else {
+        JSONFile.append(',');
+    }
+
+    JSONFile.append('\n');
+}
+
+QStringList XMLTree::breakingStartTagIntoParts(QString startTag)
+{
+    QStringList tagParts;
+    QString currentPart = "";
+    bool isAttribute = false;
+    QChar currentCharacter;
+    for(int i = 1 ; i < startTag.length(); i++)
+    {
+        currentCharacter = startTag[i];
+
+        // An empty character exists either after the tag name or between the attributes.
+        if(currentCharacter == ' ') {
+            // The empty character exists between the attributes.
+            if(isAttribute) {
+                currentPart += currentCharacter;
+            }
+            // Indicates the end of a tag name.
+            else if(!currentPart.isEmpty()) {
+                tagParts.push_back(currentPart);
+                currentPart.clear();
+            }
+        }
+        else if(currentCharacter == '"') {
+            // Indicates the end of an attribute value.
+            if(isAttribute) {
+                tagParts.push_back(currentPart);
+                currentPart.clear();
+            }
+
+            isAttribute = !isAttribute;
+        }
+        // Indicates the end of an attribute key.
+        else if(currentCharacter == '=') {
+            tagParts.push_back(currentPart);
+            currentPart.clear();
+        }
+        // Indicates the end of the tag.
+        else if(currentCharacter == '>' && !currentPart.isEmpty())
+        {
+            tagParts.push_back(currentPart);
+        }
+        // In case of an info tag, the '?' is only stored at the end of the info tag.
+        else if(currentCharacter == '?' && currentPart.isEmpty())
+        {
+            continue;
+        }
+        else if(currentCharacter == '/' && !isAttribute)
+        {
+            tagParts.push_back("/");
+        }
+        else {
+            currentPart += currentCharacter;
+        }
+    }
+    return tagParts;
+}
+
+void XMLTree::generateIndentationForJSON()
+{
+    for (int i = 0; i < indentCounter; i++)
+    {
+        JSONFile.append(' ');
+    }
+}
+
 
 QString XMLTree::prettifyingXMLTreeFile(MainBlock *root, int &spacesNum, QString &outputFile)
 {

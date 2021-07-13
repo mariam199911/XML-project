@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "Core/xml-tree.h"
-#include "Core/xmlfile-converter.h"
 
 #include<QDebug>
 MainWindow::MainWindow(QWidget *parent)

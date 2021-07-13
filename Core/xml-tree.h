@@ -8,13 +8,15 @@
 #include <QStringList>
 #include <QFile>
 #include <QStack>
-#include <QTextStream>
 #include <QDebug>
 
 class XMLTree
 {
 private:
     QString fileText;
+    QString JSONFile;
+    int indentCounter;
+
     QFile *file;
     MainBlock *xmlRoot = nullptr;
 
@@ -36,6 +38,16 @@ private:
      */
     void buildingXMLTree(QVector<QString> * separateTag);
 
+    void generateJSONFile();
+    void generateJSONObject(MainBlock *currentBlock, bool isLastBlock);
+
+    /*
+     * Dividing open tag into parts to indicate the tag name and the tag attributes.
+     */
+    QStringList breakingStartTagIntoParts(QString startTag);
+
+    void generateIndentationForJSON();
+
 public:
     XMLTree(QString fileText);
     XMLTree(QFile *file);
@@ -49,6 +61,8 @@ public:
      * Printing the XML tree structure after minfying.
      */
     QString minfyingXMLTreeFile(MainBlock *root, QString& outputFile);
+
+    QString convertXMLFileIntoJSONFile();
 
     MainBlock* getXMLFileRoot();
     ~XMLTree();

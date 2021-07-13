@@ -37,6 +37,7 @@ private slots:
     void on_Remove_Spaces_clicked();
     void on_JSON_Button_clicked();
     void on_Check_Button_clicked();
+    void on_pushButton_4_clicked();
 private:
     Ui::MainWindow *ui;
 };

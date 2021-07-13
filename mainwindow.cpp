@@ -87,3 +87,12 @@ void MainWindow::on_Check_Button_clicked()
     QString out = treeNode->error_checking(output);
     ui->output_text->setPlainText(out);
 }
+void MainWindow::on_pushButton_4_clicked()
+{
+    QString output = "";
+   // int spacesNum = 0;
+   XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
+  // MainBlock* root = treeNode->getXMLFileRoot();
+   QString out = treeNode->error_correction(output);
+   ui->output_text->setPlainText(out);
+}

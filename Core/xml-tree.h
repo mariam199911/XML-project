@@ -63,6 +63,8 @@ public:
 
     QString convertXMLFileIntoJSONFile();
 
+    QString error_checking(QString &outputFile)
+
     MainBlock* getXMLFileRoot();
     ~XMLTree();
 };

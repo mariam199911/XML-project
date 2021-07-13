@@ -429,3 +429,242 @@ MainBlock* XMLTree::getXMLFileRoot()
 {
     return xmlRoot;
 }
+
+QString XMLTree::error_checking(QString &outputFile)
+{
+    QVector<QString> *tags = breakingFileTextIntoTags();
+    QStack<QString> s;
+    QStack<quint8> index;
+
+    for (int i=0; i<tags->length(); i++)
+    {
+        QString tag = (*tags)[i];
+        bool flag = 0;
+
+        //opening tag case
+        if (tag[0] == '<' && tag[1] != '/')
+        {
+            //check if stack is empty
+            if (! s.isEmpty())
+            {
+                QString top = s.pop();
+                quint8 topi = index.pop();
+                
+                /*check if there's text before the opening tag 
+                then this text has a missing closing tag*/ 
+                if (top[0] != '<')
+                {
+                   s.pop();
+                   index.pop();
+                   (*tags)[topi] = top + " ### error,close tag missing ###";
+                }
+                
+                /*if there's another tag before the opening tag
+                then just push the opening tag*/
+                else
+                {
+                    s.push(top);
+                    index.push(topi);
+                }
+            }
+            
+            //special tag: frame ==> don't push in stack as it has no closing tag
+            if (tag.mid(1, 5) != "frame")
+            {
+                s.push(tag);
+                index.push(i);
+            }
+        }
+
+        //closing tag case
+        else if (tag[0] == '<' && tag[1] == '/')
+        {
+            //check if stack is empty
+            if (! s.isEmpty())
+            {
+                QString top = s.pop();
+                quint8 topi = index.pop();
+                
+                /*if stack is not empty then check if the top of the stack is text 
+                then pop it and get the new top which should be an opening tag*/
+                if (top[0] != '<')
+                {
+                    if (! s.isEmpty())
+                    {
+                        top = s.pop();
+                        topi = index.pop();
+                    }
+                    
+                    //if there's nothing before this text then there's an opening tag missing
+                    else
+                        (*tags)[topi] = top + " ### error,open tag missing ###";
+                }
+
+                //compare the closing tag with the opening tag popped from the stack
+                QString str1 = tag.mid(2, tag.length()-3);
+                QString str2 = top.mid(1, tag.length()-3);
+                
+                /*if both tags don't match then check if the error is 
+                mismatching tags or missing tags*/
+                if (str1 != str2)
+                {
+                    QString temp = (*tags)[i-1];
+                    
+                    /*if the closing tag is preceeded by another closing tag
+                    then there's an opening or closing tag missing*/
+                    if (temp[0] == '<' && temp[1] == '/')
+                    {
+                        for (int j=i+1; j<tags->length(); j++)
+                        {
+                            temp = (*tags)[j];
+                            
+                            /*compare the opening tag in top of the stack with the remaining tags
+                            in the file, if there's another matching opening tag following 
+                            then the closing tag of this opening tag(in top of the stack) is missing*/
+                            if (temp[0] == '<' && temp[1] != '/')
+                            {
+                                str1 = temp.mid(1, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                if (str1 == str2)
+                                {
+                                    (*tags)[topi] = top + " ### error,close tag missing ###";
+                                    flag = 1;
+                                    i--;
+                                    break;
+                                }
+                            }
+                    
+                            /*if there's another matching closing tag following 
+                            then the opening tag of the current closing tag is missing*/
+                            else if (temp[0] == '<' && temp[1] == '/')
+                            {
+                                str1 = temp.mid(2, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                if (str1 == str2)
+                                {
+                                    (*tags)[i] = tag + " ### error,open tag missing ###";
+                                    s.push(top);
+                                    index.push(topi);
+                                    flag = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        /*if no matching tags exist at all
+                        then the closing tag of this opening tag(in top of the stack) is missing*/
+                        if (flag == 0)
+                        {
+                            (*tags)[topi] = top + " ### error,close tag missing ###";
+                            i--;
+                        }
+                        else
+                            flag = 0;
+                    }
+
+                    /*if the closing tag is preceeded by a text
+                    then there's an opening tag missing or mismatching tags exist*/
+                    else
+                    {
+                        temp = (*tags)[i-2];
+                        if (temp[0] == '<' && temp[1] != '/')
+                        {
+                            temp = (*tags)[i+1];
+                            
+                            if (temp[0] == '<' && temp[1] == '/')
+                            {
+                                str1 = temp.mid(2, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                
+                                /*if the closing tag is followed by another closing tag
+                                and it matches the opening tag in top of the stack
+                                then the current closing tag has a missing opening tag*/
+                                if (str1 == str2)
+                                {
+                                    (*tags)[i-1] = (*tags)[i-1] + " ### error,open tag missing ###";
+                                    i++;
+                                }
+                                
+                                /*if the closing tag is followed by another closing tag
+                                and it doesn't match the opening tag in top of the stack
+                                then there's mismatching tags*/
+                                else
+                                    (*tags)[i] = tag + " ### error,mismatching ###";
+                            }
+                            
+                            /*if the closing tag is followed by an opening tag or text
+                            then there's mismatching tags*/
+                            else
+                                (*tags)[i] = tag + " ### error,mismatching ###";
+                        }
+                    }
+                }
+            }
+            
+            //if stack is empty then the opening tag of the current closing tag is missing
+            else
+                (*tags)[i] = tag + " ### error,open tag missing ###";
+        }
+
+        //text case
+        else
+        {
+            //check if stack is empty
+            if (! s.isEmpty())
+            {
+                QString temp1 = (*tags)[i-1];
+                QString temp2 = (*tags)[i+1];
+                if (temp1[0] == '<' && temp1[1] != '/')
+                {
+                    if (temp2[0] == '<' && temp2[1] == '/')
+                    {
+                        s.push(tag);
+                        index.push(i);
+                    }
+                }
+                else
+                {
+                    /*if there's text not preceeded by opening tag but followed by closing tag
+                    then its opening tag is missing*/
+                    if (temp2[0] == '<' && temp2[1] == '/')
+                    {
+                        (*tags)[i] = tag + " ### error,open tag missing ###";
+                        i++;
+                    }
+                }
+            }
+            /*if there's text and stack is empty (no opening tags)
+            then the text's opening tag is missing*/
+            else
+                (*tags)[i] = tag + " ### error,open tag missing ###";
+        }
+    }
+
+    //if tags are over and stack is not empty then there are missing closing tags
+    while (! s.isEmpty())
+        (*tags)[index.pop()] = s.pop() + " ### error,close tag missing ###";
+
+    //organizing the output string and adding necessary spaces
+    for (int i=0; i<tags->length(); i++)
+    {
+        if (i==0)
+            outputFile += (*tags)[i];
+        else
+        {
+            QString temp = (*tags)[i];
+            if (temp[0] == '<' && temp[0] == '/')
+            {
+                outputFile = outputFile.left(outputFile.length()-1);
+                outputFile += (*tags)[i];
+            }
+            else
+            {
+                outputFile += '     ';
+                outputFile += (*tags)[i];
+            }
+        }
+        outputFile += '\n';
+    }
+
+    return outputFile;
+}

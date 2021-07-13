@@ -1,7 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- A random selection of elements from data.xml
-     Some IDREFS (refs attribute of element pointer) do not have a corresponding id in this sample-->
-<?xml-model href="data.rnc" type="application/relax-ng-compact-syntax"?>
 <data version="3.0">
    <synsets source="dict/data.adj" xml:base="data.adj.xml"><!--10 out of 18156 elements-->
     <synset id="a00001740" type="a">

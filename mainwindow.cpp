@@ -14,9 +14,11 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 QFile mytempfile("out.txt");
 QFile myfile("myfile.txt");
 QString text = "";
+
 void MainWindow::on_OpenFileButton_clicked()
 {
     ui->input_text->clear();
@@ -34,36 +36,38 @@ void MainWindow::on_OpenFileButton_clicked()
     ui->input_text->setLineWrapMode(QPlainTextEdit::NoWrap);
     ui->output_text->setPlainText(text);
     ui->output_text->setLineWrapMode(QPlainTextEdit::NoWrap);
-   input_file.close();
+    input_file.close();
 }
+
 void MainWindow::on_Save_Button_clicked()
 {
- QFile output_file(QFileDialog::getSaveFileName(this,tr("Save File"),"",tr("Text File ()*.txt;;XML File ()*.xml")));
- output_file.open(QIODevice::ReadWrite|QIODevice::Text);
- QString text=ui->output_text->toPlainText();
-     output_file.write(text.toUtf8());
-     output_file.close();
+    QFile output_file(QFileDialog::getSaveFileName(this,tr("Save File"),"",tr("Text File ()*.txt;;XML File ()*.xml")));
+    output_file.open(QIODevice::ReadWrite|QIODevice::Text);
+    QString text=ui->output_text->toPlainText();
+    output_file.write(text.toUtf8());
+    output_file.close();
 }
+
 void MainWindow::on_Exit_Button_clicked()
 {
     qApp->quit();
 }
+
 void MainWindow::on_Reset_button_clicked()
 {
-        qApp->quit();
-        QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
+
 void MainWindow::on_Prettify_Button_clicked()
 {
 
-
-        XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
-        MainBlock* root = treeNode->getXMLFileRoot();
-        QString output = "";
-        int spacesNum = 0;
-        QString out = treeNode->prettifyingXMLTreeFile(root, spacesNum, output);
-        ui->output_text->setPlainText(out);
-        //qDebug() << out;
+    XMLTree* treeNode = new XMLTree(text);
+    MainBlock* root = treeNode->getXMLFileRoot();
+    QString output = "";
+    int spacesNum = 0;
+    QString out = treeNode->prettifyingXMLTreeFile(root, spacesNum, output);
+    ui->output_text->setPlainText(out);
 }
 
 void MainWindow::on_Remove_Spaces_clicked()
@@ -74,25 +78,26 @@ void MainWindow::on_Remove_Spaces_clicked()
     QString out = treeNode->minfyingXMLTreeFile(root, output);
     ui->output_text->setPlainText(out);
 }
+
 void MainWindow::on_JSON_Button_clicked()
 {
-        XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
-        QString out = treeNode->convertXMLFileIntoJSONFile();
-        ui->output_text->setPlainText(out);
+    XMLTree* treeNode = new XMLTree(text);
+    QString out = treeNode->convertXMLFileIntoJSONFile();
+    ui->output_text->setPlainText(out);
 }
+
 void MainWindow::on_Check_Button_clicked()
 {
-     QString output = "";
-    XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
+    QString output = "";
+    XMLTree* treeNode = new XMLTree(text);
     QString out = treeNode->error_checking(output);
     ui->output_text->setPlainText(out);
 }
+
 void MainWindow::on_pushButton_4_clicked()
 {
     QString output = "";
-   // int spacesNum = 0;
-   XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
-  // MainBlock* root = treeNode->getXMLFileRoot();
-   QString out = treeNode->error_correction(output);
-   ui->output_text->setPlainText(out);
+    XMLTree* treeNode = new XMLTree(text);
+    QString out = treeNode->error_correction(output);
+    ui->output_text->setPlainText(out);
 }

@@ -668,3 +668,242 @@ QString XMLTree::error_checking(QString &outputFile)
 
     return outputFile;
 }
+
+QString XMLTree::error_correction(QString &outputFile)
+{
+    QVector<QString> *tags = breakingFileTextIntoTags();
+    QStack<QString> s;
+    QStack<quint8> index;
+    QVector<QString> *output = new QVector<QString>();
+
+    for (int i=0; i<tags->length(); i++)
+        output->push_back((*tags)[i]);
+
+    for (int i=0; i<tags->length(); i++)
+    {
+        QString tag = (*tags)[i];
+        bool flag = 0;
+
+        //opening tag case
+        if (tag[0] == '<' && tag[1] != '/')
+        {
+            if (! s.isEmpty())
+            {
+                QString top = s.pop();
+                quint8 topi = index.pop();
+                if (top[0] != '<')
+                {
+                   s.pop();
+                   index.pop();
+                   QString temp = (*tags)[topi-1];
+                   quint8 length = temp.length()-1;
+                   for (int k=0; k<temp.length(); k++)
+                       if (temp[k] == ' ' && k != 1)
+                           length = k;
+                   
+                   //adding the missing closing tag
+                   (*output)[topi] = top + temp.mid(0, 1) + "/" + temp.mid(1, length-1) + ">";
+                }
+                else
+                {
+                    s.push(top);
+                    index.push(topi);
+                }
+            }
+            if (tag.mid(1, 5) != "frame")
+            {
+                s.push(tag);
+                index.push(i);
+            }
+        }
+        //closing tag case
+        else if (tag[0] == '<' && tag[1] == '/')
+        {
+            if (! s.isEmpty())
+            {
+                QString top = s.pop();
+                quint8 topi = index.pop();
+                if (top[0] != '<')
+                {
+                    if (! s.isEmpty())
+                    {
+                        top = s.pop();
+                        topi = index.pop();
+                    }
+                    else
+                    {
+                        //adding the missing opening tag
+                        (*output)[topi] = tag.mid(0, 1) + tag.mid(2, tag.length()-2) + top;
+                    }
+                }
+                QString str1 = tag.mid(2, tag.length()-3);
+                QString str2 = top.mid(1, tag.length()-3);
+                if (str1 != str2)
+                {
+                    QString temp = (*tags)[i-1];
+                    
+                    //open or close tag missing
+                    if (temp[0] == '<' && temp[1] == '/')
+                    {
+                        for (int j=i+1; j<tags->length(); j++)
+                        {
+                            temp = (*tags)[j];
+                            if (temp[0] == '<' && temp[1] != '/')
+                            {
+                                str1 = temp.mid(1, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                if (str1 == str2)
+                                {
+                                    quint8 length = top.length()-1;
+                                    for (int k=0; k<top.length(); k++)
+                                        if (top[k] == ' ' && k != 1)
+                                            length = k;
+                                    
+                                    //adding the missing closing tag
+                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">" +tag;
+                                    flag = 1;
+                                    i--;
+                                    break;
+                                }
+                            }
+                            else if (temp[0] == '<' && temp[1] == '/')
+                            {
+                                str1 = temp.mid(2, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                if (str1 == str2)
+                                {
+                                    //adding the missing opening tag
+                                    (*output)[topi] = top + tag.mid(0, 1) + tag.mid(2, tag.length()-2);
+                                    s.push(top);
+                                    index.push(topi);
+                                    flag = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if (flag == 0)
+                        {
+                            quint8 length = top.length()-1;
+                                for (int k=0; k<top.length(); k++)
+                                    if (top[k] == ' ' && k != 1)
+                                        length = k;
+
+                            //adding the missing closing tag
+                            (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">" + tag;
+                            i--;
+                        }
+                        else
+                            flag = 0;
+                    }
+
+                    //open tag missing or mismatching
+                    else
+                    {
+                        temp = (*tags)[i-2];
+                        if (temp[0] == '<' && temp[1] != '/')
+                        {
+                            temp = (*tags)[i+1];
+                            if (temp[0] == '<' && temp[1] == '/')
+                            {
+                                str1 = temp.mid(2, temp.length()-3);
+                                str2 = top.mid(1, temp.length()-3);
+                                if (str1 == str2)
+                                {
+                                    //adding the missing opening tag
+                                    (*output)[topi] = top + tag.mid(0, 1) + tag.mid(2, tag.length()-2);
+                                    i++;
+                                }
+                                else
+                                {
+                                    quint8 length = top.length()-1;
+                                    for (int k=0; k<top.length(); k++)
+                                        if (top[k] == ' ' && k != 1)
+                                            length = k;
+                                    //making the tags match
+                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
+                                }
+                            }
+                            else
+                            {
+                                quint8 length = top.length()-1;
+                                for (int k=0; k<top.length(); k++)
+                                    if (top[k] == ' ' && k != 1)
+                                        length = k;
+                                //making the tags match
+                                (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //adding the missing opening tag
+                (*output)[0] = tag.mid(0, 1) + tag.mid(2, tag.length()-2);
+            }
+        }
+        //text case
+        else
+        {
+            if (! s.isEmpty())
+            {
+                QString temp1 = (*tags)[i-1];
+                QString temp2 = (*tags)[i+1];
+                if (temp1[0] == '<' && temp1[1] != '/')
+                {
+                    if (temp2[0] == '<' && temp2[1] == '/')
+                    {
+                        s.push(tag);
+                        index.push(i);
+                    }
+                    else
+                    {
+                        QString temp = (*tags)[i-1];
+                        quint8 length = temp.length()-1;
+                            for (int k=0; k<temp.length(); k++)
+                                if (temp[k] == ' ' && k != 1)
+                                    length = k;
+                        
+                        //adding the missing closing tag
+                        (*output)[i] = tag + temp.mid(0, 1) + '/' + temp.mid(1, length-1) + ">";
+                    }
+                }
+                else
+                {
+                    if (temp2[0] == '<' && temp2[1] == '/')
+                    {
+                        QString temp = (*tags)[i+1];
+                        
+                        //adding the missing opening tag
+                        (*output)[i] = temp.mid(0, 1) + temp.mid(2, temp.length()-2) + tag;
+                        i++;
+                    }
+                }
+            }
+            else
+            {
+                QString temp = (*tags)[i+1];
+
+                //adding the missing opening tag
+                (*output)[i] = temp.mid(0, 1) + temp.mid(2, temp.length()-2) + tag;
+            }
+        }
+    }
+
+    //adding the missing closing tag in the end of the file
+    while (! s.isEmpty())
+    {
+        QString temp = s.pop();
+        quint8 length = temp.length()-1;
+            for (int k=0; k<temp.length(); k++)
+                if (temp[k] == ' ' && k != 1)
+                    length = k;
+        output->push_back(temp.mid(0, 1) + "/" + temp.mid(1, length-1) + ">");
+    }
+
+     //constructing the output string
+    for (int i=0; i<output->length(); i++)
+        outputFile += (*output)[i];
+
+    return outputFile;
+}

@@ -263,8 +263,6 @@
          <pointer refs="v00004227 v00005041" source="1" target="3">Also see</pointer>
          <pointer refs="v00002325 v00002573">Verb Group</pointer>
          <pointer refs="v00002573 v00002724 v00002942 v00003826 v00004032 v00004227 v00005041 v00006697 v00007328 v00017031">Hyponym</pointer>
-         <frame f_num="2"/>
-         <frame f_num="8"/>
          <def>draw air into, and expel out of, the lungs</def>
          <example>I can breathe better when the air is clean</example>
          <example>The patient is respiring</example>
@@ -274,15 +272,12 @@
          <word lex_id="0">smut</word>
          <pointer refs="v00286605">Hypernym</pointer>
          <pointer refs="n14793533" source="1" target="4">Derivationally related form</pointer>
-         <frame f_num="8"/>
-         <frame f_num="11"/>
          <def>stain with a dirty substance, such as soot</def>
       </synset>
       <synset id="v00557404" type="v">
          <lex_filenum>30</lex_filenum>
          <word lex_id="9">take</word>
          <pointer refs="v00149583">Hypernym</pointer>
-         <frame f_num="7"/>
          <def>be seized or affected in a specified way</def>
          <example>take sick</example>
          <example>be taken drunk</example>
@@ -293,7 +288,6 @@
          <word lex_id="0">peer review</word>
          <pointer refs="v00855512">Hypernym</pointer>
          <pointer refs="n10526927" source="1" target="2">Derivationally related form</pointer>
-         <frame f_num="8"/>
          <def>evaluate professionally a colleague's work</def>
       </synset>
       <synset id="v01135783" type="v">
@@ -303,8 +297,6 @@
          <pointer refs="v01134781">Hypernym</pointer>
          <pointer refs="n00986938" source="2" target="1">Derivationally related form</pointer>
          <pointer refs="n00986938" source="2" target="2">Derivationally related form</pointer>
-         <frame f_num="2"/>
-         <frame f_num="22"/>
          <def>start firing a weapon</def>
       </synset>
       <synset id="v01389329" type="v">
@@ -319,9 +311,6 @@
          <pointer refs="n00616083" source="1" target="1">Derivationally related form</pointer>
          <pointer refs="n00356790" source="1" target="2">Derivationally related form</pointer>
          <pointer refs="v01574571">Hyponym</pointer>
-         <frame f_num="8"/>
-         <frame f_num="11"/>
-         <frame f_num="21"/>
          <def>make more compact by or as if by pressing</def>
          <example>compress the data</example>
       </synset>
@@ -330,7 +319,6 @@
          <word lex_id="0">dip</word>
          <pointer refs="v01653013">Hypernym</pointer>
          <pointer refs="n03203089" source="1" target="1">Derivationally related form</pointer>
-         <frame f_num="8"/>
          <def>place (candle wicks) into hot, liquid wax</def>
       </synset>
       <synset id="v01938942" type="v">
@@ -338,7 +326,6 @@
          <word lex_id="0">schuss</word>
          <pointer refs="v01938426">Hypernym</pointer>
          <pointer refs="n00523513">Domain of synset - TOPIC</pointer>
-         <frame f_num="2"/>
          <def>ski downhill</def>
       </synset>
       <synset id="v02208265" type="v">
@@ -347,7 +334,6 @@
          <pointer refs="v02207206">Hypernym</pointer>
          <pointer refs="n01090446">Domain of synset - TOPIC</pointer>
          <pointer refs="n00041899" source="1" target="2">Derivationally related form</pointer>
-         <frame f_num="8"/>
          <def>purchase</def>
          <example>What did you get at the toy store?</example>
       </synset>
@@ -355,7 +341,6 @@
          <lex_filenum>41</lex_filenum>
          <word lex_id="0">mismarry</word>
          <pointer refs="v02488834">Hypernym</pointer>
-         <frame f_num="2"/>
          <def>marry an unsuitable partner</def>
       </synset>
    </synsets>

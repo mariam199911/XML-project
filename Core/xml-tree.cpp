@@ -905,5 +905,8 @@ QString XMLTree::error_correction(QString &outputFile)
     for (int i=0; i<output->length(); i++)
         outputFile += (*output)[i];
 
+    fileText = outputFile;
+    analyzeXMLFileText();
+
     return outputFile;
 }

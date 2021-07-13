@@ -35,6 +35,7 @@ private slots:
     void on_Reset_button_clicked();
     void on_Prettify_Button_clicked();
     void on_Remove_Spaces_clicked();
+    void on_JSON_Button_clicked();
 private:
     Ui::MainWindow *ui;
 };

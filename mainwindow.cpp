@@ -20,6 +20,7 @@ QString text = "";
 void MainWindow::on_OpenFileButton_clicked()
 {
     ui->input_text->clear();
+    ui->output_text->clear();
     QFile input_file(QFileDialog::getOpenFileName(this,tr("Open File"),"",tr("XML File (*.xml) ;;TextFile (*.txt)")));
 
     input_file.open(QIODevice::ReadOnly |QIODevice::Text);
@@ -31,6 +32,8 @@ void MainWindow::on_OpenFileButton_clicked()
     QFile myfile("myfile.txt");
     ui->input_text->setPlainText(text);
     ui->input_text->setLineWrapMode(QPlainTextEdit::NoWrap);
+    ui->output_text->setPlainText(text);
+    ui->output_text->setLineWrapMode(QPlainTextEdit::NoWrap);
    input_file.close();
 }
 void MainWindow::on_Save_Button_clicked()
@@ -53,7 +56,8 @@ void MainWindow::on_Reset_button_clicked()
 void MainWindow::on_Prettify_Button_clicked()
 {
 
-        XMLTree* treeNode = new XMLTree(text);
+
+        XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
         MainBlock* root = treeNode->getXMLFileRoot();
         QString output = "";
         int spacesNum = 0;
@@ -69,4 +73,10 @@ void MainWindow::on_Remove_Spaces_clicked()
     QString output = "";
     QString out = treeNode->minfyingXMLTreeFile(root, output);
     ui->output_text->setPlainText(out);
+}
+void MainWindow::on_JSON_Button_clicked()
+{
+        XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
+        QString out = treeNode->convertXMLFileIntoJSONFile();
+        ui->output_text->setPlainText(out);
 }

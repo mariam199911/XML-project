@@ -67,7 +67,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="JSON_Button">
           <property name="text">
            <string>To JSON</string>
           </property>

@@ -62,7 +62,7 @@ void MainWindow::on_Reset_button_clicked()
 void MainWindow::on_Prettify_Button_clicked()
 {
 
-    XMLTree* treeNode = new XMLTree(text);
+    XMLTree* treeNode = new XMLTree(ui->output_text->toPlainText());
     MainBlock* root = treeNode->getXMLFileRoot();
     QString output = "";
     int spacesNum = 0;

@@ -914,25 +914,27 @@ QString XMLTree::error_correction(QString &outputFile)
 
      //constructing the output string
     for (int i=0; i<output->length(); i++)
-    {
-        if (i==0)
-            outputFile += (*output)[i];
-        else
-        {
-            QString temp = (*output)[i];
-            if (temp[0] == '<' && temp[0] == '/')
-            {
-                outputFile = outputFile.left(outputFile.length()-1);
-                outputFile += (*output)[i];
-            }
-            else
-            {
-                outputFile += '     ';
-                outputFile += (*output)[i];
-            }
-        }
-        outputFile += '\n';
-    }
+    {outputFile+=(*output)[i];}
+//    for (int i=0; i<output->length(); i++)
+//    {
+//        if (i==0)
+//            outputFile += (*output)[i];
+//        else
+//        {
+//            QString temp = (*output)[i];
+//            if (temp[0] == '<' && temp[0] == '/')
+//            {
+//                outputFile = outputFile.left(outputFile.length()-1);
+//                outputFile += (*output)[i];
+//            }
+//            else
+//            {
+//                outputFile += '     ';
+//                outputFile += (*output)[i];
+//            }
+//        }
+//        outputFile += '\n';
+//    }
 
     return outputFile;
 }

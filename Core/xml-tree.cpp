@@ -784,9 +784,9 @@ QString XMLTree::error_correction(QString &outputFile)
                         if (flag == 0)
                         {
                             quint8 length = top.length()-1;
-                                for (int k=0; k<top.length(); k++)
-                                    if (top[k] == ' ' && k != 1)
-                                        length = k;
+                            for (int k=0; k<top.length(); k++)
+                                if (top[k] == ' ' && k != 1)
+                                    length = k;
 
                             //adding the missing closing tag
                             (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">" + tag;
@@ -815,14 +815,22 @@ QString XMLTree::error_correction(QString &outputFile)
                                 }
                                 else
                                 {
+                                    quint8 length = top.length()-1;
+                                    for (int k=0; k<top.length(); k++)
+                                        if (top[k] == ' ' && k != 1)
+                                            length = k;
                                     //making the tags match
-                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, top.length()-1) + ">";
+                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
                                 }
                             }
                             else
                             {
+                                quint8 length = top.length()-1;
+                                for (int k=0; k<top.length(); k++)
+                                    if (top[k] == ' ' && k != 1)
+                                        length = k;
                                 //making the tags match
-                                (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, top.length()-1) + ">";
+                                (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
                             }
                         }
                     }
@@ -897,25 +905,21 @@ QString XMLTree::error_correction(QString &outputFile)
 
      //constructing the output string
     for (int i=0; i<output->length(); i++)
-        outputFile += (*output)[i];
-
-    //organizing the output string and adding necessary spaces
-    for (int i=0; i<tags->length(); i++)
     {
         if (i==0)
-            outputFile += (*tags)[i];
+            outputFile += (*output)[i];
         else
         {
-            QString temp = (*tags)[i];
+            QString temp = (*output)[i];
             if (temp[0] == '<' && temp[0] == '/')
             {
                 outputFile = outputFile.left(outputFile.length()-1);
-                outputFile += (*tags)[i];
+                outputFile += (*output)[i];
             }
             else
             {
                 outputFile += '     ';
-                outputFile += (*tags)[i];
+                outputFile += (*output)[i];
             }
         }
         outputFile += '\n';

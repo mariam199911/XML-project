@@ -454,9 +454,12 @@ QString XMLTree::error_checking(QString &outputFile)
                 then this text has a missing closing tag*/ 
                 if (top[0] != '<')
                 {
-                   s.pop();
-                   index.pop();
-                   (*tags)[topi] = top + " ### error,close tag missing ###";
+                    if (! s.isEmpty())
+                    {
+                        s.pop();
+                        index.pop();
+                        (*tags)[topi] = top + " ### error,close tag missing ###";
+                    }
                 }
                 
                 /*if there's another tag before the opening tag
@@ -693,16 +696,19 @@ QString XMLTree::error_correction(QString &outputFile)
                 quint8 topi = index.pop();
                 if (top[0] != '<')
                 {
-                   s.pop();
-                   index.pop();
-                   QString temp = (*tags)[topi-1];
-                   quint8 length = temp.length()-1;
-                   for (int k=0; k<temp.length(); k++)
-                       if (temp[k] == ' ' && k != 1)
-                           length = k;
-                   
-                   //adding the missing closing tag
-                   (*output)[topi] = top + temp.mid(0, 1) + "/" + temp.mid(1, length-1) + ">";
+                    if (! s.isEmpty())
+                    {
+                        s.pop();
+                        index.pop();
+                        QString temp = (*tags)[topi-1];
+                        quint8 length = temp.length()-1;
+                        for (int k=0; k<temp.length(); k++)
+                            if (temp[k] == ' ' && k != 1)
+                                length = k;
+                        
+                        //adding the missing closing tag
+                        (*output)[topi] = top + temp.mid(0, 1) + "/" + temp.mid(1, length-1) + ">";
+                    }
                 }
                 else
                 {
@@ -860,14 +866,17 @@ QString XMLTree::error_correction(QString &outputFile)
                     {
                         QString temp = (*tags)[i-1];
                         quint8 length = temp.length()-1;
-                            for (int k=0; k<temp.length(); k++)
-                                if (temp[k] == ' ' && k != 1)
-                                    length = k;
+                        for (int k=0; k<temp.length(); k++)
+                            if (temp[k] == ' ' && k != 1)
+                                length = k;
                         
                         //adding the missing closing tag
                         (*output)[i] = tag + temp.mid(0, 1) + '/' + temp.mid(1, length-1) + ">";
-                        s.pop();
-                        index.pop();
+                        if (! s.isEmpty())
+                        {
+                            s.pop();
+                            index.pop();
+                        }
                     }
                 }
                 else
@@ -897,9 +906,9 @@ QString XMLTree::error_correction(QString &outputFile)
     {
         QString temp = s.pop();
         quint8 length = temp.length()-1;
-            for (int k=0; k<temp.length(); k++)
-                if (temp[k] == ' ' && k != 1)
-                    length = k;
+        for (int k=0; k<temp.length(); k++)
+            if (temp[k] == ' ' && k != 1)
+                length = k;
         output->push_back(temp.mid(0, 1) + "/" + temp.mid(1, length-1) + ">");
     }
 

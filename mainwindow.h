@@ -38,6 +38,10 @@ private slots:
     void on_JSON_Button_clicked();
     void on_Check_Button_clicked();
     void on_pushButton_4_clicked();
+    void on_compression_Button_clicked();
+
+    void on_Decompression_Button_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

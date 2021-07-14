@@ -41,6 +41,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="compression_Button">
+          <property name="text">
+           <string>Compression</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="Decompression_Button">
+          <property name="text">
+           <string>Decompression</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="Remove_Spaces">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

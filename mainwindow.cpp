@@ -101,3 +101,15 @@ void MainWindow::on_pushButton_4_clicked()
     QString out = treeNode->error_correction(output);
     ui->output_text->setPlainText(out);
 }
+
+void MainWindow::on_compression_Button_clicked()
+{
+
+}
+
+
+void MainWindow::on_Decompression_Button_clicked()
+{
+
+}
+

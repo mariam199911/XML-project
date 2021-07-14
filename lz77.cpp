@@ -1,179 +1,107 @@
-#include <vector>
-#include <sstream>
 #include <QVector>
 #include <QByteArray>
 #include <QString>
 #include <lz77.hpp>
-//#include "Windows.h"
 using namespace std;
-QVector <QString> split(QString str, char delimiter) {
-    QVector<QString> internal;
-    stringstream ss(str.toUtf8().constData());
-    string tok;
-
-    while (getline(ss, tok, delimiter)) {
-        internal.push_back(QString::fromUtf8(tok.c_str()));
-	}
-
-	return internal;
-}
-QString LZ77(QByteArray input, int option)
+Match_Pointer::Match_Pointer(qsizetype begin, qsizetype length)
 {
-    QString result;
-	int length, char_info_selc = 0;
-	if (option == 1)
-	{
-		length = (int)input.length();
-		int** result_ary = new int*[3];
-		for (int i = 0; i < length; ++i)
-			result_ary[i] = new int[length];
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < length; j++)
-				result_ary[i][j] = 0;
-		}
-		int** char_info = new int*[3];
-        //< length
-        for (int i = 0; i < 3; ++i)
-			char_info[i] = new int[length];
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < length; j++)
-				char_info[i][j] = 0;
-		}
-		result_ary[0][0] = 0;
-		result_ary[1][0] = 0;
-        result_ary[2][0] =input[0];
-		int result_count = 1;
-		for (int i = 1; i < length; i++)
-		{
-			for (int j = 0; j < i; j++)
-			{
-				if (input[i] == input[j])
-				{
-					char_info[0][char_info_selc] = i - j;
-					char_info_selc++;
-				}
-			}
-			for (int j = 0; j < length; j++)
-			{
-				if (char_info[0][j] != 0)
-		        {
-					int start = i - char_info[0][j];
-					int count = 1;
-					for (int k = 0; k < length; k++)
-					{
-						if (input[start + count] == input[i + count])
-							count++;
-						else
-						{
-							char_info[1][j] = count;
-							if (i != (length - 1))
-							{
-								if (char_info[0][j] + count == length)
-									char_info[2][j] = 0;
-								else
-									char_info[2][j] = input[char_info[0][j] + count];
-							}
-							else
-								char_info[2][j] = NULL;	
-							break;
-						}
-					}
-				}
-			}
-			int large = 0;
-			for (int k = 1; k < length; k++)
-			{
-				if (char_info[1][large] == char_info[1][k])
-					large = k;
-				else if (char_info[1][large] < char_info[1][k])
-					large = k;
-			}
-			if (char_info[1][large] == 0)
-				char_info[2][large] = input[i];	
-			else
-			{
-				i += char_info[1][large];
-				char_info[2][large] = input[i];	
-			}
-			result_ary[0][result_count] = char_info[0][large];
-			result_ary[1][result_count] = char_info[1][large];
-			result_ary[2][result_count] = char_info[2][large];
-			result_count++;
-			for (int z = 0; z < 2; z++)
-			{
-				for (int j = 0; j < length; j++)
-					char_info[z][j] = 0;
-			}
-			char_info_selc = 0;
-		}
-		for (int j = 0; j < length; j++)
-		{
-			if (result_ary[0][j] == 0 && result_ary[1][j] == 0)
-			{
-				if (result_ary[2][j] != NULL || result_ary[2][j] != 0)
-				{
-					char z = result_ary[2][j];
-                    result += QString(QString::number(result_ary[0][j]) + "," + QString::number(result_ary[1][j]) + "," + z + " ");
-				}
-			}
-			else{
-                result += QString(QString::number(result_ary[0][j]) + "," + QString::number(result_ary[1][j]) + ",0 ");}
-		}
-		return result;
-	}
-	else if (option == 2)
-	{
-        QVector<QString> s_input = split(input, ' ');
-
-		for (int i = 0; i < s_input.size(); ++i)
-		{
-            QVector<QString> ss_input = split(s_input[i], ',');
-
-            int p = ss_input[0].toInt(),
-                l = ss_input[1].toInt();
-            QString ch;
-            if (ss_input[2][0] == '0')
-                ch = ' ';
-			else
-				ch = ss_input[2];
-			if (p != 0){
-				int result_len = (int)result.length();
-				for (int x = 0; x < l; x++)
-					result += result[result_len - p + x];
-			}
-			if (ch[0] != '0' || ch[0] != NULL)
-				result += ch;
+    this->begin=begin;
+    this->length=length;
+};
+Match_Pointer _largest_match(QByteArray::iterator window, QByteArray::iterator look_ahead_buffer){
+    QByteArray::iterator i = window, j = look_ahead_buffer;
+    QByteArray longest_match("");
+    QByteArray current_match("");
+    Match_Pointer current_match_pointer(0, 0);
+    Match_Pointer longest_match_pointer(0, 0);
+    bool in_a_matching_sequence = false;
+    while(i != look_ahead_buffer){
+        if (*i == *j){
+            if(!in_a_matching_sequence)
+                current_match_pointer.begin = static_cast<qsizetype>(look_ahead_buffer - i);
+            in_a_matching_sequence = true;
+            current_match.push_back(*i);
+            i++;
+            j++;
         }
-		return result;
-	}
+        else{
+            if(in_a_matching_sequence){
+                if (current_match.length() > longest_match.length()){
+                    longest_match = current_match;
+                    longest_match_pointer.begin = current_match_pointer.begin;
+                    longest_match_pointer.length = longest_match_pointer.begin - static_cast<qsizetype>(look_ahead_buffer - i);
+                }
+                current_match = QByteArray("");
+                current_match_pointer.begin = 0;
+                current_match_pointer.length = 0;
+                j = look_ahead_buffer;
+                in_a_matching_sequence = false;
+            }
+            else
+                i++;
+        }
+    }
+    if (current_match.length() > longest_match.length()){
+        longest_match = current_match;
+        longest_match_pointer.begin = current_match_pointer.begin;
+        longest_match_pointer.length = longest_match_pointer.begin - static_cast<int>(look_ahead_buffer - i);
+    }
+    return longest_match_pointer;
 }
-/*int main()
-{
-    string input, result;
-    int method, option;
-    method =1;
-	cin >> option;
-    if (option == 1)
-	{
-		cin.ignore();
-		getline(cin, input);
-		if (method == 1)
-			result = LZ77(input, 1);
-		cout << result << endl;
-		exit(0);
-	}
-	else if (option==2)
-	//Decompression//
-	 {
-		cin.ignore();
-		getline(cin, input);
-		if (method == 1)
-			result = LZ77(input, 2);
-		cout << result << endl;
-		exit(0);
-	 }
-	cin.ignore();
-	return 0;
-}*/
+
+QString minify(QString file){
+    QString minified_file = "";
+    for(int i = 0; i < file.length(); i++){
+        if ((i < file.length() - 1) && (file[i] == ' ' && file[i + 1] != ' ')){
+            minified_file += file[i];
+            continue;
+        } else if ((i < file.length() - 1) && (file[i] == ' ' && file[i + 1] == ' ')){
+            continue;
+        }
+        if(file[i] == '\n' || file[i] == '\t' || file[i] =='\r' || file[i] == '\v' || file[i] == '\f')
+            continue;
+        minified_file += file[i];
+    }
+    return minified_file;
+}
+
+QByteArray compress(QString& file){
+    QByteArray minified_file(minify(file).toUtf8());
+    QByteArray compressed_byte_array("");
+    for(QByteArray::iterator it = minified_file.begin(); it != minified_file.end(); it++){
+        QByteArray::iterator window = it - 255 > minified_file.begin() ? it - 255 : minified_file.begin();
+        Match_Pointer match = _largest_match(window, it);
+        compressed_byte_array.push_back(match.begin);
+        if (match.begin != 0){
+            it += match.length - 1;
+            compressed_byte_array.push_back(match.length);
+        }
+        else{
+            compressed_byte_array.push_back(*it);
+        }
+    }
+    return compressed_byte_array;
+}
+
+QString decompress(QByteArray& compressed_byte_array){
+    QByteArray file("");
+    unsigned int file_index = 0;
+    for(qsizetype i = 0; i < compressed_byte_array.length();){
+        qsizetype begin = static_cast<qsizetype>(static_cast<unsigned char>(compressed_byte_array[i]));
+        if (begin == 0){
+            file.push_back(compressed_byte_array[i+1]);
+            file_index++;
+            i+=2;
+        }
+        else {
+           int prev_file_index = file_index;
+           qsizetype length = static_cast<qsizetype>(static_cast<unsigned char>(compressed_byte_array[i+1]));
+           for(unsigned int j = prev_file_index - begin; j < prev_file_index - begin + length; j++){
+               file.push_back(file[j]);
+               file_index++;
+           }
+           i+=2;
+        }
+    }
+    return QString(file);
+}

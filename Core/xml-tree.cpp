@@ -815,22 +815,14 @@ QString XMLTree::error_correction(QString &outputFile)
                                 }
                                 else
                                 {
-                                    quint8 length = top.length()-1;
-                                    for (int k=0; k<top.length(); k++)
-                                        if (top[k] == ' ' && k != 1)
-                                            length = k;
                                     //making the tags match
-                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
+                                    (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, top.length()-1) + ">";
                                 }
                             }
                             else
                             {
-                                quint8 length = top.length()-1;
-                                for (int k=0; k<top.length(); k++)
-                                    if (top[k] == ' ' && k != 1)
-                                        length = k;
                                 //making the tags match
-                                (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, length-1) + ">";
+                                (*output)[i] = top.mid(0, 1) + "/" + top.mid(1, top.length()-1) + ">";
                             }
                         }
                     }
@@ -866,6 +858,8 @@ QString XMLTree::error_correction(QString &outputFile)
                         
                         //adding the missing closing tag
                         (*output)[i] = tag + temp.mid(0, 1) + '/' + temp.mid(1, length-1) + ">";
+                        s.pop();
+                        index.pop();
                     }
                 }
                 else
@@ -905,8 +899,27 @@ QString XMLTree::error_correction(QString &outputFile)
     for (int i=0; i<output->length(); i++)
         outputFile += (*output)[i];
 
-    fileText = outputFile;
-    analyzeXMLFileText();
+    //organizing the output string and adding necessary spaces
+    for (int i=0; i<tags->length(); i++)
+    {
+        if (i==0)
+            outputFile += (*tags)[i];
+        else
+        {
+            QString temp = (*tags)[i];
+            if (temp[0] == '<' && temp[0] == '/')
+            {
+                outputFile = outputFile.left(outputFile.length()-1);
+                outputFile += (*tags)[i];
+            }
+            else
+            {
+                outputFile += '     ';
+                outputFile += (*tags)[i];
+            }
+        }
+        outputFile += '\n';
+    }
 
     return outputFile;
 }

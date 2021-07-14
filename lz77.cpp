@@ -1,112 +1,29 @@
-#include <iostream>
-#include <string>
 #include <vector>
 #include <sstream>
+#include <QVector>
+#include <QByteArray>
+#include <QString>
+#include <lz77.hpp>
 //#include "Windows.h"
 using namespace std;
-struct Node{
-	int index;
-	string data;
-	Node *next;
-};
-void st_Node(Node *head, int index, string data){
-	head->index = index;
-	head->data = data;
-	head->next = NULL;
-}
-void insert_Node(Node *head, int index, string data){
-	Node *new_Node = new Node;
-	new_Node->index = index;
-	new_Node->data = data;
-	new_Node->next = NULL;
+QVector <QString> split(QString str, char delimiter) {
+    QVector<QString> internal;
+    stringstream ss(str.toUtf8().constData());
+    string tok;
 
-	Node *curr = head;
-	while (curr != NULL)
-	{
-		if (curr->next == NULL)
-		{
-			curr->next = new_Node;
-			return;
-		}
-		curr = curr->next;
-	}
-}
-Node *search_Node(Node *head, string data)
-{
-	Node *curr = head;
-	while (curr != NULL)
-	{
-		if (data.compare(curr->data) == 0)
-			return curr;
-		else
-			curr = curr->next;
-	}
-	return NULL;
-}
-Node *search_Node(Node *head, int index)
-{
-	Node *curr = head;
-	while (curr != NULL)
-	{
-		if (index == curr->index)
-			return curr;
-		else
-			curr = curr->next;
-	}
-	return NULL;
-}
-bool delete_Node(Node *head, Node *to_delete){
-	if (to_delete == NULL)
-		return false;
-	else if (to_delete == head)
-	{
-		head = to_delete->next;
-		delete to_delete;
-		return true;
-	}
-	else{
-		Node *curr = head;
-		while (curr)
-		{
-			if (curr->next == to_delete)
-			{
-				curr->next = to_delete->next;
-				delete to_delete;
-				return true;
-			}
-			curr = curr->next;
-		}
-		return false;
-	}
-}
-vector <string> split(string str, char delimiter) {
-	vector<string> internal;
-	stringstream ss(str);
-	string tok;
-
-	while (getline(ss, tok, delimiter)) {
-		internal.push_back(tok);
+    while (getline(ss, tok, delimiter)) {
+        internal.push_back(QString::fromUtf8(tok.c_str()));
 	}
 
 	return internal;
 }
-string LZ77(string input, int option)
+QString LZ77(QByteArray input, int option)
 {
-	string result;
+    QString result;
 	int length, char_info_selc = 0;
 	if (option == 1)
 	{
-	check_char:		// Length checker pointer
 		length = (int)input.length();
-		/*
-		// Calculate input string length
-		// Check input line length is less than 3
-		if (length <= 2)
-		{
-			cout << "enter at leaset 3 characters \n";
-			getline(cin, input);		// Read input string
-			goto check_char;
-		}*/
 		int** result_ary = new int*[3];
 		for (int i = 0; i < length; ++i)
 			result_ary[i] = new int[length];
@@ -116,7 +33,8 @@ string LZ77(string input, int option)
 				result_ary[i][j] = 0;
 		}
 		int** char_info = new int*[3];
-		for (int i = 0; i < length; ++i)
+        //< length
+        for (int i = 0; i < 3; ++i)
 			char_info[i] = new int[length];
 		for (int i = 0; i < 3; i++)
 		{
@@ -125,19 +43,15 @@ string LZ77(string input, int option)
 		}
 		result_ary[0][0] = 0;
 		result_ary[1][0] = 0;
-		result_ary[2][0] = input[0];
+        result_ary[2][0] =input[0];
 		int result_count = 1;
 		for (int i = 1; i < length; i++)
 		{
 			for (int j = 0; j < i; j++)
 			{
-				// Check position of previous view of element i
 				if (input[i] == input[j])
 				{
-					// Set position pointer
 					char_info[0][char_info_selc] = i - j;
-
-					// Increase char info array selector by 1
 					char_info_selc++;
 				}
 			}
@@ -201,27 +115,27 @@ string LZ77(string input, int option)
 				if (result_ary[2][j] != NULL || result_ary[2][j] != 0)
 				{
 					char z = result_ary[2][j];
-					result += to_string(result_ary[0][j]) + "," + to_string(result_ary[1][j]) + "," + z + " ";
+                    result += QString(QString::number(result_ary[0][j]) + "," + QString::number(result_ary[1][j]) + "," + z + " ");
 				}
 			}
 			else{
-				result += to_string(result_ary[0][j]) + "," + to_string(result_ary[1][j]) + ",0 ";}
+                result += QString(QString::number(result_ary[0][j]) + "," + QString::number(result_ary[1][j]) + ",0 ");}
 		}
 		return result;
 	}
 	else if (option == 2)
 	{
-		vector<string> s_input = split(input, ' ');
+        QVector<QString> s_input = split(input, ' ');
 
 		for (int i = 0; i < s_input.size(); ++i)
 		{
-			vector<string> ss_input = split(s_input[i], ',');
+            QVector<QString> ss_input = split(s_input[i], ',');
 
-			int p = stoi(ss_input[0]),
-				l = stoi(ss_input[1]);
-			string ch;
-			if (ss_input[2][0] == '0')
-				ch = ' ';
+            int p = ss_input[0].toInt(),
+                l = ss_input[1].toInt();
+            QString ch;
+            if (ss_input[2][0] == '0')
+                ch = ' ';
 			else
 				ch = ss_input[2];
 			if (p != 0){
@@ -231,24 +145,17 @@ string LZ77(string input, int option)
 			}
 			if (ch[0] != '0' || ch[0] != NULL)
 				result += ch;
-		}
+        }
 		return result;
 	}
 }
-int main()
+/*int main()
 {
-	string input, result, method_text;
-	int method, option, option2;
+    string input, result;
+    int method, option;
     method =1;
-    method_text="LZ-77";
-    method_menu:
-	/*string main_menu_2 = R"(
-   1- Compression
-   2- Decompression
-    Enter 1 or 2: )"; cout << main_menu_2;*/
 	cin >> option;
-	if (option == 1)
-	//Compression//
+    if (option == 1)
 	{
 		cin.ignore();
 		getline(cin, input);
@@ -269,4 +176,4 @@ int main()
 	 }
 	cin.ignore();
 	return 0;
-}
+}*/

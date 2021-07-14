@@ -13,6 +13,7 @@ SOURCES += \
     Core/main-block.cpp \
     Core/tag-block.cpp \
     Core/xml-tree.cpp \
+    lz77.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -20,6 +21,7 @@ HEADERS += \
     Core/main-block.h \
     Core/tag-block.h \
     Core/xml-tree.h \
+    lz77.hpp \
     mainwindow.h
 
 FORMS += \

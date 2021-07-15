@@ -65,7 +65,7 @@ QString minimize(QString file){
     return minimized_file;
 }
 
-QByteArray compress(QString& file){
+QByteArray compression(QString& file){
     QByteArray minified_file(minimize(file).toUtf8());
     QByteArray compressed("");
     for(QByteArray::iterator it = minified_file.begin(); it != minified_file.end(); it++){

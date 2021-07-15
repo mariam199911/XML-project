@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "Core/xml-tree.h"
+#include "lz77.hpp"
 
 #include<QDebug>
 MainWindow::MainWindow(QWidget *parent)
@@ -18,13 +19,14 @@ MainWindow::~MainWindow()
 QFile mytempfile("out.txt");
 QFile myfile("myfile.txt");
 QString text = "";
-
+QString s="";
 void MainWindow::on_OpenFileButton_clicked()
 {
     ui->input_text->clear();
     ui->output_text->clear();
-    QFile input_file(QFileDialog::getOpenFileName(this,tr("Open File"),"",tr("XML File (*.xml) ;;TextFile (*.txt)")));
 
+    QFile input_file(QFileDialog::getOpenFileName(this,tr("Open File"),"",tr("XML File (*.xml) ;;TextFile (*.txt)")));
+    s=input_file.fileName();
     input_file.open(QIODevice::ReadOnly |QIODevice::Text);
     QTextStream stream(&input_file);
     text= stream.readAll();
@@ -41,7 +43,10 @@ void MainWindow::on_OpenFileButton_clicked()
 
 void MainWindow::on_Save_Button_clicked()
 {
-    QFile output_file(QFileDialog::getSaveFileName(this,tr("Save File"),"",tr("Text File ()*.txt;;XML File ()*.xml")));
+    QString fileName = QFileDialog::getSaveFileName(this,
+             tr("Save Address Book"), "",
+             tr("XML (*.xml);;TEXT (*.txt)"));
+    QFile output_file(fileName);
     output_file.open(QIODevice::ReadWrite|QIODevice::Text);
     QString text=ui->output_text->toPlainText();
     output_file.write(text.toUtf8());
@@ -104,12 +109,48 @@ void MainWindow::on_pushButton_4_clicked()
 
 void MainWindow::on_compression_Button_clicked()
 {
+    QFile file(s);
+        if (!file.open(QFile::ReadOnly|QFile::Text))
+        {
+            QMessageBox::warning(this,"..","can not open the file");
+            return ;
+        }
+        QTextStream in(&file);
+        QString text = in.readAll();
+        QByteArray compressed=compression(text);
+        QString fileName = QFileDialog::getSaveFileName(this,
+                 tr("Save Address Book"), "",
+                 tr("COMP (*.comp);;All Files ()"));
+        QFile newDoc(fileName);
+        if(newDoc.open(QIODevice::WriteOnly)){
+            newDoc.write(compressed);
+        }
+
+        newDoc.close();
 
 }
 
 
 void MainWindow::on_Decompression_Button_clicked()
 {
+        QFile file(QFileDialog::getOpenFileName(this, tr("Open File"), QString(),tr("Text Files (*.comp)")));
+                char file_data;
+                QByteArray arr;
+                if(!file.open(QFile::ReadOnly))
+                {
+                    QMessageBox::warning(this,"..","can not open the file");
+                    return;
+                }
 
+                while(!file.atEnd())
+                {
+                  file.read(&file_data,sizeof(char));
+                  arr.push_back(file_data);
+                }
+                file.close();
+            QString txt = decompression(arr);
+            ui->output_text->clear();
+
+            ui->output_text->setPlainText(txt);
 }
 
